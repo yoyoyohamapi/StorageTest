@@ -38,6 +38,12 @@ public class Baby extends Base implements CacheSaving<Baby> {
     public static int MALE = 1; // 男性
 
 
+    public Baby() {
+        this.setStatistics(new Statistics());
+        this.setFeedPlan(new FeedPlan());
+        this.setUser(App.getCurrentUser());
+    }
+
     /**
      * 获得宝宝昵称
      *
@@ -203,12 +209,6 @@ public class Baby extends Base implements CacheSaving<Baby> {
      * @param saveCallback ß回调接口
      */
     public void saveInCloud(final SaveCallback saveCallback) {
-        // 首次创建宝宝时，为其自动创建统计信息字段及喂养计划
-        if (this.getObjectId() == null) {
-            this.setStatistics(new Statistics());
-            this.setFeedPlan(new FeedPlan());
-            this.setUser(App.getCurrentUser());
-        }
         this.saveInBackground(saveCallback);
     }
 
@@ -216,12 +216,6 @@ public class Baby extends Base implements CacheSaving<Baby> {
      * 同步地存储Baby对象，若已存在，则为更新
      */
     public void saveInCloud() throws AVException {
-        // 首次创建宝宝时，为其自动创建统计信息及喂养计划
-        if (this.getObjectId() == null) {
-            this.setStatistics(new Statistics());
-            this.setFeedPlan(new FeedPlan());
-            this.setUser(App.getCurrentUser());
-        }
         this.save();
     }
 

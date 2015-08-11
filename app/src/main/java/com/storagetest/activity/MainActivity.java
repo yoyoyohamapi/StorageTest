@@ -8,14 +8,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.alibaba.fastjson.JSON;
 import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVFile;
+import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.GetCallback;
 import com.avos.avoscloud.LogInCallback;
 import com.storagetest.R;
 import com.storagetest.entity.Baby;
+import com.storagetest.entity.Powder;
 import com.storagetest.entity.User;
-import com.storagetest.utils.ACache;
 
 /**
  * MainActivity
@@ -46,19 +48,31 @@ public class MainActivity extends Activity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AVUser.logInInBackground("18581867753", "123456", new LogInCallback<User>() {
+                AVUser.logInInBackground("13880227627", "123456", new LogInCallback<User>() {
                     @Override
                     public void done(final User user, AVException e) {
                         AsyncTask task = new AsyncTask() {
                             @Override
                             protected Object doInBackground(Object[] objects) {
-                                user.hasBaby(MainActivity.this);
+//                                user.hasBaby(MainActivity.this);
+                                final Baby baby = new Baby();
+                                Log.d("baby'id :", String.valueOf(baby.getUser()));
+//                                baby.setStatistics(new Statistics());
+//                                baby.setUser(user);
+                                baby.setNickname("PipI");
+                                baby.setBirthday("2014-02-08");
+                                try {
+                                    baby.saveInCloud();
+                                    baby.saveInCache(MainActivity.this);
+                                } catch (AVException e1) {
+                                    e1.printStackTrace();
+                                }
                                 return null;
                             }
 
                             @Override
                             protected void onPostExecute(Object o) {
-                                Toast.makeText(MainActivity.this, "Save success", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "OK", Toast.LENGTH_SHORT).show();
                                 super.onPostExecute(o);
                             }
                         };
@@ -72,11 +86,16 @@ public class MainActivity extends Activity {
         getBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ACache aCache = ACache.get(MainActivity.this);
-                String json = aCache.getAsString(Baby.CACHE_KEY);
-                Log.d("JSON ARR", json);
-                Baby baby = JSON.parseObject(json, Baby.class);
-                Log.d("Baby created at:", String.valueOf(baby.getCreatedAt()));
+                AVQuery<Powder> query = AVQuery.getQuery(Powder.class);
+                query.getInBackground("55b6329f00b0788037c9dff4", new GetCallback<Powder>() {
+                    @Override
+                    public void done(Powder powder, AVException e) {
+                        AVFile file = powder.getLogo();
+                        // 获取文件缩略图的URL
+                        String url = file.getThumbnailUrl(false, 100, 100);
+                        Toast.makeText(MainActivity.this, "文件缩略图URL：" + url, Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
     }
